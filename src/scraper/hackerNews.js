@@ -3,6 +3,7 @@ import * as cheerio from "cheerio";
 import db from "../config/db.js";
 import logger from "../utils/logger.js";
 import { broadcast } from "../websocket/server.js";
+import moment from "moment";
 
 /**
  * Scrapes stories from Hacker News and stores them in MySQL, avoiding duplicates.
@@ -18,12 +19,19 @@ export async function scrapeHackerNews() {
       const id = $(element).attr("id");
       const title = $(element).find(".titleline > a").text();
       const url = $(element).find(".titleline > a").attr("href");
+      const relativeTime = $(element)
+        .next("tr") // Next <tr> after the .athing
+        .find(".subtext .age")
+        .attr("title"); // Extract the 'title' attribute containing the timestamp
+
+      // Parse the timestamp from the title attribute (e.g., "2025-01-18T16:22:03 1737217323")
+      const timestamp = moment(relativeTime, "YYYY-MM-DDTHH:mm:ss").toDate();
 
       stories.push({
         id,
         title,
         url,
-        timestamp: new Date(), // Current timestamp
+        timestamp,
       });
     });
 
@@ -59,7 +67,7 @@ async function saveStoriesToDB(stories) {
           title: story.title,
           url: story.url,
         });
-        logger.info(`Saved story: ${story.title}`);
+        logger.info(`Saved story: ${story.title} ${story.timestamp}`);
       } else {
         logger.info(`Skipped duplicate story: ${story.title}`);
       }
