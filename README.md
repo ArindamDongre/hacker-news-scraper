@@ -13,7 +13,7 @@ This project is a Node.js application that scrapes stories from Hacker News, sto
 
 2. **MySQL Integration**:
 
-   - Saves scraped stories with a unique `id`, `title`, `url`, and `timestamp`.
+   - Saves scraped stories with a unique `id`, `title`, `url`, and `time_published`.
    - Retrieves the count of stories published in the last 5 minutes.
 
 3. **WebSocket Server**:
